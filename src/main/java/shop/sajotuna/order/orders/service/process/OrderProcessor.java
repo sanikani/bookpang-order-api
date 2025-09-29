@@ -11,4 +11,6 @@ public interface OrderProcessor {
     Discounts processDiscounts(CreateOrderCommand command, List<OrderProduct> orderProducts);
 
     void processPointEarn(CreateOrderCommand command, Order order);
+
+    void processPointEarnSync(CreateOrderCommand command, Order order);
 }

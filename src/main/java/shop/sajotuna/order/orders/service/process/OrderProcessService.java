@@ -56,4 +56,32 @@ public class OrderProcessService {
 
         return OrderResponse.from(order);
     }
+
+    @Transactional
+    public OrderResponse processOrderSync(CreateOrderCommand command) {
+
+        //여기서 쿠폰을 가진 OrderProduct 생성
+        List<OrderProduct> orderProducts = orderProductCreateService.createOrderProducts(command.getItems(), command.getUserId());
+
+        orderProducts.forEach(product ->
+                stockService.decreaseStock(product.getIsbn(), product.getQty())
+        );
+
+        OrderPrice orderPrice = pricingService.calculatePrices(orderProducts);
+
+        // Factory를 통해 적절한 Processor 선택
+        OrderProcessor orderProcessor = orderProcessorFactory.getOrderProcessor(command.getUserId());
+        Discounts discounts = orderProcessor.processDiscounts(command, orderProducts);
+
+        Order order = Order.createOrder(command.getOrderer(), command.getShippingInfo(), orderPrice, discounts, orderProducts);
+        orderRepository.save(order);
+
+        // 포인트 적립 처리
+        orderProcessor.processPointEarn(command, order);
+
+        // 주문 큐에 메시지 전송
+        orderQueueService.sendOrderMessage(new OrderEvent(order.getId(), command.getUserId()));
+
+        return OrderResponse.from(order);
+    }
 }

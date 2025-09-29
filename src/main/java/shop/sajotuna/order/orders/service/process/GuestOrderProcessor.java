@@ -22,4 +22,9 @@ public class GuestOrderProcessor implements OrderProcessor{
     public void processPointEarn(CreateOrderCommand command, Order order) {
         // 비회원은 포인트 적립 없음
     }
+
+    @Override
+    public void processPointEarnSync(CreateOrderCommand command, Order order) {
+        // 비회원은 포인트 적립 없음
+    }
 }

@@ -20,4 +20,10 @@ public class OrderProcessController {
         OrderResponse orderResponse = orderProcessService.processOrder(request.toCommand(userId));
         return ResponseEntity.ok(orderResponse);
     }
+
+    @PostMapping("/sync")
+    public ResponseEntity<OrderResponse> createOrderSync(@RequestBody @Valid CreateOrderRequest request) {
+        OrderResponse orderResponse = orderProcessService.processOrder(request.toCommand(1L));
+        return ResponseEntity.ok(orderResponse);
+    }
 }

@@ -17,7 +17,8 @@ public class ExternalPaymentServiceFactory {
         this.serviceMap = paymentServices.stream()
                 .collect(Collectors.toMap(
                         ExternalPaymentService::getPaymentMethod,
-                        service -> service
+                        service -> service,
+                        (key, value) -> {throw new IllegalStateException("중복된 키가 존재합니다");}
                 ));
     }
 
