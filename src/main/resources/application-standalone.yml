@@ -1,0 +1,100 @@
+server:
+  port: ${PORT:10366}
+
+spring:
+  application:
+    name: order-api
+  datasource:
+    url: jdbc:h2:file:./data/orderdb;
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        highlight_sql: true
+        auto_quote_keyword: true
+        dialect: org.hibernate.dialect.H2Dialect
+        generate_statistics: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: sajotuna
+
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+
+toss:
+  payment:
+    secret-key: test_sk_standalone_local_only
+
+rabbitmq:
+  point:
+    queue: sajotuna.point.queue
+    exchange: sajotuna.point.exchange
+    routing-key: sajotuna.point.earn
+    dlx-queue: sajotuna.point.dlq
+    dlx-exchange: sajotuna.point.dlx
+    dlx-routing-key: sajotuna.point.earn.error
+    parking-lot-queue: sajotuna.point.parking.queue
+    parking-lot-exchange: sajotuna.point.parking.exchange
+    parking-lot-routing-key: sajotuna.point.earn.dead
+  coupon:
+    queue: sajotuna.coupon.queue
+    exchange: sajotuna.coupon.exchange
+    routing-key: sajotuna.coupon.earn
+    dlx-queue: sajotuna.coupon.dlq
+    dlx-exchange: sajotuna.coupon.dlx
+    dlx-routing-key: sajotuna.coupon.earn.error
+    parking-lot-queue: sajotuna.coupon.parking.queue
+    parking-lot-exchange: sajotuna.coupon.parking.exchange
+    parking-lot-routing-key: sajotuna.coupon.earn.dead
+  order:
+    queue: sajotuna.order.queue
+    exchange: sajotuna.order.exchange
+    routing-key: sajotuna.order.earn
+    dlx-queue: sajotuna.order.dlq
+    dlx-exchange: sajotuna.order.dlx
+    dlx-routing-key: sajotuna.order.earn.error
+
+management:
+  health:
+    config:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,beans,env
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    distribution:
+      percentiles:
+        http.server.requests: 0.5,0.95,0.99
+      percentiles-histogram:
+        http.server.requests: true
+    export:
+      prometheus:
+        enabled: true

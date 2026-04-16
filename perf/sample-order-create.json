@@ -1,0 +1,25 @@
+{
+  "ordererName": "Performance Tester",
+  "ordererPhoneNumber": "010-1234-5678",
+  "ordererEmail": "perf@example.com",
+  "recipientName": "Performance Receiver",
+  "recipientPhoneNumber": "010-9876-5432",
+  "recipientEmail": "receiver@example.com",
+  "recipientAddress": "Seoul Gangnam-gu Teheran-ro 123",
+  "expectedDeliveryDate": "20271231",
+  "orderCouponId": null,
+  "usedPoint": 0,
+  "items": [
+    {
+      "orderPackagingId": 1,
+      "isbn": "9788901234567",
+      "qty": 1,
+      "amount": 15000,
+      "bookCouponId": null,
+      "packagingRequest": true,
+      "categoryIds": [
+        1
+      ]
+    }
+  ]
+}
