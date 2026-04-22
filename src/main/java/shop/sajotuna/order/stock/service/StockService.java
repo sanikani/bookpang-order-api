@@ -3,9 +3,7 @@ package shop.sajotuna.order.stock.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shop.sajotuna.order.stock.controller.request.CreateStockRequest;
@@ -15,6 +13,8 @@ import shop.sajotuna.order.stock.domain.Stock;
 import shop.sajotuna.order.stock.exception.BookStockNotFoundException;
 import shop.sajotuna.order.stock.exception.StockProcessingFailedException;
 import shop.sajotuna.order.stock.repository.BookStockRepository;
+import shop.sajotuna.order.stock.service.dto.StockDeductionMode;
+import shop.sajotuna.order.stock.service.strategy.StockDeductionStrategyResolver;
 
 import java.util.List;
 
@@ -25,27 +25,16 @@ import java.util.List;
 public class StockService {
 
     private final BookStockRepository bookStockRepository;
+    private final StockDeductionStrategyResolver strategyResolver;
 
-    @Retryable(
-            maxAttempts = 5,
-            backoff = @Backoff(delay = 100, multiplier = 1.5),
-            retryFor = OptimisticLockingFailureException.class
-    )
     public void decreaseStock(String isbn, int quantity) {
-        BookStock bookStock = bookStockRepository.findByIsbn(isbn)
-                .orElseThrow(BookStockNotFoundException::new);
-        bookStock.decreaseStock(Stock.of(quantity));
-
-        if (bookStock.isSoldOut()) {
-            // TODO: Book-API에 품절 상태 업데이트 요청
-        }
+        strategyResolver.decreaseWithDefaultStrategy(isbn, quantity);
     }
 
-    @Retryable(
-            maxAttempts = 5,
-            backoff = @Backoff(delay = 100, multiplier = 1.5),
-            retryFor = OptimisticLockingFailureException.class
-    )
+    public void decreaseStock(String isbn, int quantity, StockDeductionMode strategy) {
+        strategyResolver.decrease(strategy, isbn, quantity);
+    }
+
     public void increaseStock(String isbn, int quantity) {
         BookStock bookStock = bookStockRepository.findByIsbn(isbn)
                 .orElseThrow(BookStockNotFoundException::new);
@@ -63,13 +52,13 @@ public class StockService {
 
     @Recover
     public void recoverDecreaseStock(OptimisticLockingFailureException ex, String isbn, int quantity) {
-        log.error("재고 차감 최종 실패 - ISBN: {}, 수량: {}, 재시도 횟수 초과", isbn, quantity, ex);
+        log.error("Stock deduction failed after retries. isbn={}, quantity={}", isbn, quantity, ex);
         throw new StockProcessingFailedException(isbn, quantity);
     }
 
     @Recover
     public void recoverIncreaseStock(OptimisticLockingFailureException ex, String isbn, int quantity) {
-        log.error("재고 증가 최종 실패 - ISBN: {}, 수량: {}, 재시도 횟수 초과", isbn, quantity, ex);
+        log.error("Stock increase failed after retries. isbn={}, quantity={}", isbn, quantity, ex);
         throw new StockProcessingFailedException(isbn, quantity);
     }
 
@@ -78,12 +67,10 @@ public class StockService {
                 .map(CreateStockRequest::getIsbn)
                 .toList();
 
-        // 이미 존재하는 ISBN 조회
         List<String> existingIsbns = bookStockRepository.findByIsbnIn(isbns).stream()
                 .map(BookStock::getIsbn)
                 .toList();
 
-        // 중복되지 않은 것만 필터링
         List<BookStock> bookStocks = createStockRequest.stream()
                 .filter(request -> !existingIsbns.contains(request.getIsbn()))
                 .map(request -> new BookStock(request.getIsbn(), Stock.of(request.getStock())))
@@ -97,7 +84,8 @@ public class StockService {
     }
 
     public void updateStock(String isbn, int quantity) {
-        BookStock bookStock = bookStockRepository.findByIsbn(isbn).orElseThrow(BookStockNotFoundException::new);
+        BookStock bookStock = bookStockRepository.findByIsbn(isbn)
+                .orElseThrow(BookStockNotFoundException::new);
         bookStock.update(Stock.of(quantity));
     }
 }

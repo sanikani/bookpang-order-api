@@ -1,0 +1,41 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: order-benchmark-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: order_benchmark
+      MYSQL_USER: order
+      MYSQL_PASSWORD: order
+      MYSQL_ROOT_PASSWORD: root
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --innodb_flush_log_at_trx_commit=1
+      - --sync_binlog=1
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:4.2-management
+    container_name: order-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_VHOST: sajotuna
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
+  rabbitmq-data:

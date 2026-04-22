@@ -3,3 +3,14 @@ spring:
     name: order-api
   profiles:
     active: standalone
+
+stock:
+  strategy:
+    default-mode: optimistic
+    hot-mode: pessimistic
+  retry:
+    optimistic:
+      max-attempts: 5
+      delay: 50
+      multiplier: 2.0
+  hot-isbns: []
