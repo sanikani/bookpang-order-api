@@ -47,9 +47,9 @@ stock:
     hot-mode: pessimistic
   retry:
     optimistic:
-      max-attempts: 5
-      delay: 50
-      multiplier: 2.0
+      max-attempts: 3
+      delay: 10
+      multiplier: 1.5
   hot-isbns:
     - HOT-ISBN-0001
     - HOT-ISBN-0002

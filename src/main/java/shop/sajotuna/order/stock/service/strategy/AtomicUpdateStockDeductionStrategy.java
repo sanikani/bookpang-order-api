@@ -1,6 +1,7 @@
 package shop.sajotuna.order.stock.service.strategy;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import shop.sajotuna.order.stock.exception.BookStockNotFoundException;
 import shop.sajotuna.order.stock.exception.InsufficientStockException;
 import shop.sajotuna.order.stock.repository.BookStockRepository;
@@ -27,6 +28,7 @@ public class AtomicUpdateStockDeductionStrategy implements StockDeductionStrateg
     }
 
     @Override
+    @Transactional
     public void decrease(String isbn, int quantity) {
         if (!bookStockRepository.existsByIsbn(isbn)) {
             throw new BookStockNotFoundException();

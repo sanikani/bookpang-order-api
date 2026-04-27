@@ -51,7 +51,7 @@ Hybrid routing is driven by application config:
 - default mode: `OPTIMISTIC`
 - hot mode: `PESSIMISTIC`
 - hot ISBNs: `HOT-ISBN-0001` to `HOT-ISBN-0005`
-- optimistic retry policy: `max-attempts=5`, `delay=50ms`, `multiplier=2.0`
+- optimistic retry policy: `max-attempts=3`, `delay=10ms`, `multiplier=1.5`
 
 ## Retry Tuning
 
@@ -68,6 +68,7 @@ stock:
 
 Suggested retry presets for repeated `skewed_conflict` runs:
 
+- low-conflict latency: `max-attempts=3`, `delay=10`, `multiplier=1.5`
 - baseline: `max-attempts=5`, `delay=50`, `multiplier=2.0`
 - light retry: `max-attempts=3`, `delay=20`, `multiplier=1.5`
 - balanced retry: `max-attempts=5`, `delay=100`, `multiplier=2.0`

@@ -7,6 +7,7 @@ import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.retry.support.RetrySynchronizationManager;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import shop.sajotuna.order.stock.domain.BookStock;
 import shop.sajotuna.order.stock.domain.Stock;
 import shop.sajotuna.order.stock.exception.BookStockNotFoundException;
@@ -44,6 +45,7 @@ public class OptimisticStockDeductionStrategy implements StockDeductionStrategy 
                     multiplierExpression = "${stock.retry.optimistic.multiplier:2.0}"
             )
     )
+    @Transactional
     public void decrease(String isbn, int quantity) {
         Integer retryCount = RetrySynchronizationManager.getContext() == null
                 ? null

@@ -5,6 +5,8 @@ const baseUrl = __ENV.BASE_URL || 'http://localhost:10366';
 const strategy = (__ENV.STRATEGY || 'OPTIMISTIC').toUpperCase();
 const scenarioName = __ENV.SCENARIO || 'high_tps_low_conflict';
 const quantity = Number(__ENV.QUANTITY || '1');
+const rateOverride = __ENV.RATE ? Number(__ENV.RATE) : null;
+const durationOverride = __ENV.DURATION || null;
 const hotIsbnPrefix = __ENV.HOT_ISBN_PREFIX || 'HOT-ISBN-';
 const hotCount = Number(__ENV.HOT_COUNT || '5');
 const skewedHotShare = Number(__ENV.SKEWED_HOT_SHARE || '0.7');
@@ -55,7 +57,11 @@ const scenarios = {
 
 export const options = {
   scenarios: {
-    stock_decrease: scenarios[scenarioName] || scenarios.high_tps_low_conflict,
+    stock_decrease: {
+      ...(scenarios[scenarioName] || scenarios.high_tps_low_conflict),
+      ...(rateOverride ? { rate: rateOverride } : {}),
+      ...(durationOverride ? { duration: durationOverride } : {}),
+    },
   },
   thresholds: {
     http_req_failed: ['rate<0.10'],

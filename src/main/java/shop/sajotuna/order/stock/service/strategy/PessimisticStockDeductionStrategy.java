@@ -3,6 +3,7 @@ package shop.sajotuna.order.stock.service.strategy;
 import jakarta.persistence.LockTimeoutException;
 import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import shop.sajotuna.order.stock.domain.BookStock;
 import shop.sajotuna.order.stock.domain.Stock;
 import shop.sajotuna.order.stock.exception.BookStockNotFoundException;
@@ -31,6 +32,7 @@ public class PessimisticStockDeductionStrategy implements StockDeductionStrategy
     }
 
     @Override
+    @Transactional
     public void decrease(String isbn, int quantity) {
         try {
             BookStock bookStock = bookStockRepository.findByIsbnWithPessimisticLock(isbn)

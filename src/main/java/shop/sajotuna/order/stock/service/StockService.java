@@ -21,7 +21,6 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class StockService {
 
     private final BookStockRepository bookStockRepository;
@@ -35,12 +34,14 @@ public class StockService {
         strategyResolver.decrease(strategy, isbn, quantity);
     }
 
+    @Transactional
     public void increaseStock(String isbn, int quantity) {
         BookStock bookStock = bookStockRepository.findByIsbn(isbn)
                 .orElseThrow(BookStockNotFoundException::new);
         bookStock.increaseStock(Stock.of(quantity));
     }
 
+    @Transactional
     public BookStockResponse createStock(String isbn, int quantity) {
         if (bookStockRepository.existsByIsbn(isbn)) {
             throw new DuplicateBookStockException();
@@ -62,6 +63,7 @@ public class StockService {
         throw new StockProcessingFailedException(isbn, quantity);
     }
 
+    @Transactional
     public List<BookStockResponse> createStocks(List<CreateStockRequest> createStockRequest) {
         List<String> isbns = createStockRequest.stream()
                 .map(CreateStockRequest::getIsbn)
@@ -83,6 +85,7 @@ public class StockService {
                 .toList();
     }
 
+    @Transactional
     public void updateStock(String isbn, int quantity) {
         BookStock bookStock = bookStockRepository.findByIsbn(isbn)
                 .orElseThrow(BookStockNotFoundException::new);
