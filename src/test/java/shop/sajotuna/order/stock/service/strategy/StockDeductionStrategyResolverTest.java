@@ -10,8 +10,6 @@ import shop.sajotuna.order.stock.service.dto.StockDeductionMode;
 import shop.sajotuna.order.stock.service.metrics.StockMetricsRecorder;
 
 import java.util.List;
-import java.util.Set;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -20,7 +18,6 @@ class StockDeductionStrategyResolverTest {
     private RecordingStrategy optimisticStrategy;
     private RecordingStrategy pessimisticStrategy;
     private RecordingStrategy atomicStrategy;
-    private RecordingStrategy hybridStrategy;
     private StockDeductionStrategyResolver resolver;
 
     @BeforeEach
@@ -28,15 +25,12 @@ class StockDeductionStrategyResolverTest {
         optimisticStrategy = new RecordingStrategy(StockDeductionMode.OPTIMISTIC);
         pessimisticStrategy = new RecordingStrategy(StockDeductionMode.PESSIMISTIC);
         atomicStrategy = new RecordingStrategy(StockDeductionMode.ATOMIC);
-        hybridStrategy = new RecordingStrategy(StockDeductionMode.HYBRID, StockDeductionMode.PESSIMISTIC);
 
         StockStrategyProperties properties = new StockStrategyProperties();
-        properties.getStrategy().setDefaultMode(StockDeductionMode.OPTIMISTIC);
-        properties.getStrategy().setHotMode(StockDeductionMode.PESSIMISTIC);
-        properties.setHotIsbns(Set.of("HOT-ISBN-0001"));
+        properties.getStrategy().setDefaultMode(StockDeductionMode.ATOMIC);
 
         resolver = new StockDeductionStrategyResolver(
-                List.of(optimisticStrategy, pessimisticStrategy, atomicStrategy, hybridStrategy),
+                List.of(optimisticStrategy, pessimisticStrategy, atomicStrategy),
                 properties,
                 new StockMetricsRecorder(new SimpleMeterRegistry())
         );
@@ -47,7 +41,7 @@ class StockDeductionStrategyResolverTest {
     void decreaseWithDefaultStrategy_usesConfiguredDefaultMode() {
         resolver.decreaseWithDefaultStrategy("COLD-ISBN-0001", 3);
 
-        assertThat(optimisticStrategy.invoked).isTrue();
+        assertThat(atomicStrategy.invoked).isTrue();
     }
 
     @Test

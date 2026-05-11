@@ -37,14 +37,6 @@ const scenarios = {
     preAllocatedVUs: 30,
     maxVUs: 100,
   },
-  mixed_hybrid: {
-    executor: 'constant-arrival-rate',
-    rate: 80,
-    timeUnit: '1s',
-    duration: '60s',
-    preAllocatedVUs: 20,
-    maxVUs: 80,
-  },
   skewed_conflict: {
     executor: 'constant-arrival-rate',
     rate: 120,
@@ -82,10 +74,6 @@ function buildIsbn() {
     case 'low_tps_high_conflict':
     case 'high_tps_high_conflict':
       return hotIsbnAt(1);
-    case 'mixed_hybrid':
-      return __ITER % 5 === 0
-        ? hotIsbnAt((__ITER % hotCount) + 1)
-        : coldIsbnAt((__ITER % coldCount) + 1);
     case 'skewed_conflict': {
       const bucket = __ITER % 100;
       if (bucket < skewedHotShare * 100) {

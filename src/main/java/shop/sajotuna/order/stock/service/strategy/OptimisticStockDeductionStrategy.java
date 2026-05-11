@@ -13,6 +13,7 @@ import shop.sajotuna.order.stock.domain.Stock;
 import shop.sajotuna.order.stock.exception.BookStockNotFoundException;
 import shop.sajotuna.order.stock.exception.StockProcessingFailedException;
 import shop.sajotuna.order.stock.repository.BookStockRepository;
+import shop.sajotuna.order.stock.service.config.StockStrategyProperties;
 import shop.sajotuna.order.stock.service.dto.StockDeductionMode;
 import shop.sajotuna.order.stock.service.metrics.StockMetricsRecorder;
 
@@ -22,13 +23,16 @@ public class OptimisticStockDeductionStrategy implements StockDeductionStrategy 
 
     private final BookStockRepository bookStockRepository;
     private final StockMetricsRecorder metricsRecorder;
+    private final StockStrategyProperties properties;
 
     public OptimisticStockDeductionStrategy(
             BookStockRepository bookStockRepository,
-            StockMetricsRecorder metricsRecorder
+            StockMetricsRecorder metricsRecorder,
+            StockStrategyProperties properties
     ) {
         this.bookStockRepository = bookStockRepository;
         this.metricsRecorder = metricsRecorder;
+        this.properties = properties;
     }
 
     @Override
@@ -62,6 +66,9 @@ public class OptimisticStockDeductionStrategy implements StockDeductionStrategy 
     @Recover
     public void recoverDecrease(OptimisticLockingFailureException ex, String isbn, int quantity) {
         log.error("Optimistic stock deduction failed after retries. isbn={}, quantity={}", isbn, quantity, ex);
+        if (properties.getRetry().getOptimistic().isRethrowOnRecovery()) {
+            throw ex;
+        }
         throw new StockProcessingFailedException(isbn, quantity);
     }
 }

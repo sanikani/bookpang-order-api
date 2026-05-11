@@ -35,14 +35,14 @@ class PerfStockControllerTest {
     @DisplayName("벤치마크 재고 감소 요청 성공")
     void decreaseStock_success() throws Exception {
         PerfStockDecreaseRequest request =
-                new PerfStockDecreaseRequest("HOT-ISBN-0001", 1, StockDeductionMode.HYBRID);
+                new PerfStockDecreaseRequest("HOT-ISBN-0001", 1, StockDeductionMode.ATOMIC);
 
         mockMvc.perform(post("/api/perf/stocks/decrease")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
-        verify(stockService).decreaseStock("HOT-ISBN-0001", 1, StockDeductionMode.HYBRID);
+        verify(stockService).decreaseStock("HOT-ISBN-0001", 1, StockDeductionMode.ATOMIC);
     }
 
     @Test

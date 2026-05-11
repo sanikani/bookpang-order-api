@@ -67,7 +67,7 @@ public class OrderProcessControllerTest {
                                   "recipientPhoneNumber": "010-9876-5432",
                                   "recipientEmail": "kim@example.com",
                                   "recipientAddress": "서울시 강남구 테헤란로 123",
-                                  "expectedDeliveryDate": "20251230",
+                                  "expectedDeliveryDate": "20261230",
                                   "orderCouponId": 6,
                                   "usedPoint": 1000,
                                   "items": [

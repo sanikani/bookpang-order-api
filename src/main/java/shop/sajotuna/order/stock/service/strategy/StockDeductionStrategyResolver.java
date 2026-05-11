@@ -38,7 +38,7 @@ public class StockDeductionStrategyResolver {
     public void decrease(StockDeductionMode requestedMode, String isbn, int quantity) {
         StockDeductionStrategy strategy = resolve(requestedMode);
         Timer.Sample sample = metricsRecorder.startSample();
-        String isbnType = properties.isHotIsbn(isbn) ? "hot" : "cold";
+        String isbnType = "default";
         StockDeductionMode metricMode = strategy.getMetricMode(isbn);
         long startNanos = System.nanoTime();
         try {

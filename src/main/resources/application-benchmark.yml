@@ -43,19 +43,19 @@ toss:
 
 stock:
   strategy:
-    default-mode: optimistic
-    hot-mode: pessimistic
+    default-mode: atomic
   retry:
     optimistic:
-      max-attempts: 3
+      max-attempts: ${STOCK_RETRY_OPTIMISTIC_MAX_ATTEMPTS:1}
       delay: 10
       multiplier: 1.5
-  hot-isbns:
-    - HOT-ISBN-0001
-    - HOT-ISBN-0002
-    - HOT-ISBN-0003
-    - HOT-ISBN-0004
-    - HOT-ISBN-0005
+      rethrow-on-recovery: true
+
+order:
+  retry:
+    max-attempts: 5
+    delay: 100
+    multiplier: 1.5
 
 rabbitmq:
   point:

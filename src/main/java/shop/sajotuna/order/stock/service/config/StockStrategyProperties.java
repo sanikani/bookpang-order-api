@@ -3,15 +3,11 @@ package shop.sajotuna.order.stock.service.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import shop.sajotuna.order.stock.service.dto.StockDeductionMode;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @ConfigurationProperties(prefix = "stock")
 public class StockStrategyProperties {
 
     private Strategy strategy = new Strategy();
     private Retry retry = new Retry();
-    private Set<String> hotIsbns = new HashSet<>();
 
     public Strategy getStrategy() {
         return strategy;
@@ -19,18 +15,6 @@ public class StockStrategyProperties {
 
     public void setStrategy(Strategy strategy) {
         this.strategy = strategy;
-    }
-
-    public Set<String> getHotIsbns() {
-        return hotIsbns;
-    }
-
-    public void setHotIsbns(Set<String> hotIsbns) {
-        this.hotIsbns = hotIsbns == null ? new HashSet<>() : new HashSet<>(hotIsbns);
-    }
-
-    public boolean isHotIsbn(String isbn) {
-        return hotIsbns.contains(isbn);
     }
 
     public Retry getRetry() {
@@ -42,8 +26,7 @@ public class StockStrategyProperties {
     }
 
     public static class Strategy {
-        private StockDeductionMode defaultMode = StockDeductionMode.OPTIMISTIC;
-        private StockDeductionMode hotMode = StockDeductionMode.PESSIMISTIC;
+        private StockDeductionMode defaultMode = StockDeductionMode.ATOMIC;
 
         public StockDeductionMode getDefaultMode() {
             return defaultMode;
@@ -53,13 +36,6 @@ public class StockStrategyProperties {
             this.defaultMode = defaultMode;
         }
 
-        public StockDeductionMode getHotMode() {
-            return hotMode;
-        }
-
-        public void setHotMode(StockDeductionMode hotMode) {
-            this.hotMode = hotMode;
-        }
     }
 
     public static class Retry {
@@ -77,6 +53,7 @@ public class StockStrategyProperties {
             private int maxAttempts = 5;
             private long delay = 50L;
             private double multiplier = 2.0;
+            private boolean rethrowOnRecovery = false;
 
             public int getMaxAttempts() {
                 return maxAttempts;
@@ -100,6 +77,14 @@ public class StockStrategyProperties {
 
             public void setMultiplier(double multiplier) {
                 this.multiplier = multiplier;
+            }
+
+            public boolean isRethrowOnRecovery() {
+                return rethrowOnRecovery;
+            }
+
+            public void setRethrowOnRecovery(boolean rethrowOnRecovery) {
+                this.rethrowOnRecovery = rethrowOnRecovery;
             }
         }
     }

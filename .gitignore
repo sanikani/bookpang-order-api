@@ -40,3 +40,4 @@ logs/**
 data/
 *.mv.db
 *.trace.db
+perf/results/
